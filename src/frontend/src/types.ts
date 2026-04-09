@@ -3,7 +3,7 @@ export type ImageId = bigint;
 export interface GalleryEntryPublic {
   id: ImageId;
   prompt: string;
-  image: import("./backend").ExternalBlob;
+  image: string;
   createdAt: bigint;
 }
 

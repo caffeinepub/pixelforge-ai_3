@@ -1,7 +1,6 @@
 import Types "../types/image-generation";
 import ImageLib "../lib/image-generation";
 import OutCall "mo:caffeineai-http-outcalls/outcall";
-import Storage "mo:caffeineai-object-storage/Storage";
 import Time "mo:core/Time";
 import Principal "mo:core/Principal";
 import Text "mo:core/Text";
@@ -16,7 +15,7 @@ mixin (state : ImageLib.State) {
 
   /// Generate an image from a text prompt and add to the caller's gallery.
   /// Uses Pollinations.ai — the image URL is constructed deterministically from the prompt.
-  /// The URL is stored as a Blob so the frontend can retrieve and display it.
+  /// The URL is stored as plain Text so the frontend can use it directly as an img src.
   public shared ({ caller }) func generateImage(prompt : Text) : async Types.GenerateResult {
     if (caller.isAnonymous()) {
       return #err("Authentication required");
@@ -28,9 +27,6 @@ mixin (state : ImageLib.State) {
     let imageUrl = "https://image.pollinations.ai/prompt/" # encodedPrompt
       # "?nologo=true&width=768&height=768&seed=" # seed.toText();
 
-    // Store the image URL as a UTF-8 blob (ExternalBlob = Blob)
-    let imageBlob : Storage.ExternalBlob = imageUrl.encodeUtf8();
-
     let id = state.nextId;
     state.nextId += 1;
 
@@ -38,7 +34,7 @@ mixin (state : ImageLib.State) {
       id;
       owner = caller;
       prompt;
-      image = imageBlob;
+      image = imageUrl;
       createdAt = Time.now();
     };
 
@@ -64,5 +60,55 @@ mixin (state : ImageLib.State) {
       case null { false };
       case (?_) { true };
     };
+  };
+
+  /// Generate a comic-style image by automatically enhancing the prompt with professional
+  /// comic art style descriptors. No questions asked — professional defaults applied.
+  public shared ({ caller }) func generateComicImage(prompt : Text) : async Types.GenerateResult {
+    if (caller.isAnonymous()) {
+      return #err("Authentication required");
+    };
+
+    let enhancedPrompt = prompt # ", professional comic book art, bold ink outlines, vibrant colors, cel shading, manga/comic illustration style, dynamic composition, studio quality";
+    let encodedPrompt = enhancedPrompt.replace(#text " ", "+");
+    let seed = state.nextId;
+    let imageUrl = "https://image.pollinations.ai/prompt/" # encodedPrompt
+      # "?nologo=true&width=768&height=768&seed=" # seed.toText() # "&model=turbo";
+
+    let id = state.nextId;
+    state.nextId += 1;
+
+    let entry : Types.GalleryEntry = {
+      id;
+      owner = caller;
+      prompt;
+      image = imageUrl;
+      createdAt = Time.now();
+    };
+
+    ImageLib.addEntry(state, caller, entry);
+    #ok(ImageLib.toPublic(entry));
+  };
+
+  /// Store a photo URL (e.g. uploaded from device gallery) as a gallery entry.
+  /// The caller provides the URL and an optional prompt/label for the image.
+  public shared ({ caller }) func storePhoto(url : Text, prompt : Text) : async Types.GenerateResult {
+    if (caller.isAnonymous()) {
+      return #err("Authentication required");
+    };
+
+    let id = state.nextId;
+    state.nextId += 1;
+
+    let entry : Types.GalleryEntry = {
+      id;
+      owner = caller;
+      prompt;
+      image = url;
+      createdAt = Time.now();
+    };
+
+    ImageLib.addEntry(state, caller, entry);
+    #ok(ImageLib.toPublic(entry));
   };
 };

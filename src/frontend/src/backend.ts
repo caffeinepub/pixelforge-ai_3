@@ -121,7 +121,7 @@ export interface GalleryEntryPublic {
     id: ImageId;
     createdAt: bigint;
     prompt: string;
-    image: ExternalBlob;
+    image: string;
 }
 export interface http_header {
     value: string;
@@ -132,6 +132,11 @@ export interface http_request_result {
     body: Uint8Array;
     headers: Array<http_header>;
 }
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
     _immutableObjectStorageBlobsAreLive(hashes: Array<Uint8Array>): Promise<Array<boolean>>;
     _immutableObjectStorageBlobsToDelete(): Promise<Array<Uint8Array>>;
@@ -139,12 +144,18 @@ export interface backendInterface {
     _immutableObjectStorageCreateCertificate(blobHash: string): Promise<_ImmutableObjectStorageCreateCertificateResult>;
     _immutableObjectStorageRefillCashier(refillInformation: _ImmutableObjectStorageRefillInformation | null): Promise<_ImmutableObjectStorageRefillResult>;
     _immutableObjectStorageUpdateGatewayPrincipals(): Promise<void>;
+    _initializeAccessControl(): Promise<void>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteGalleryEntry(id: ImageId): Promise<boolean>;
+    generateComicImage(prompt: string): Promise<GenerateResult>;
     generateImage(prompt: string): Promise<GenerateResult>;
+    getCallerUserRole(): Promise<UserRole>;
+    isCallerAdmin(): Promise<boolean>;
     listGallery(): Promise<Array<GalleryEntryPublic>>;
+    storePhoto(url: string, prompt: string): Promise<GenerateResult>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
 }
-import type { ExternalBlob as _ExternalBlob, GalleryEntryPublic as _GalleryEntryPublic, GenerateResult as _GenerateResult, ImageId as _ImageId, _ImmutableObjectStorageRefillInformation as __ImmutableObjectStorageRefillInformation, _ImmutableObjectStorageRefillResult as __ImmutableObjectStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { GalleryEntryPublic as _GalleryEntryPublic, GenerateResult as _GenerateResult, UserRole as _UserRole, _ImmutableObjectStorageRefillInformation as __ImmutableObjectStorageRefillInformation, _ImmutableObjectStorageRefillResult as __ImmutableObjectStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _immutableObjectStorageBlobsAreLive(arg0: Array<Uint8Array>): Promise<Array<boolean>> {
@@ -231,6 +242,34 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async _initializeAccessControl(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._initializeAccessControl();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._initializeAccessControl();
+            return result;
+        }
+    }
+    async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n8(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n8(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
     async deleteGalleryEntry(arg0: ImageId): Promise<boolean> {
         if (this.processError) {
             try {
@@ -245,32 +284,88 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async generateComicImage(arg0: string): Promise<GenerateResult> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.generateComicImage(arg0);
+                return from_candid_GenerateResult_n10(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.generateComicImage(arg0);
+            return from_candid_GenerateResult_n10(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async generateImage(arg0: string): Promise<GenerateResult> {
         if (this.processError) {
             try {
                 const result = await this.actor.generateImage(arg0);
-                return from_candid_GenerateResult_n8(this._uploadFile, this._downloadFile, result);
+                return from_candid_GenerateResult_n10(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.generateImage(arg0);
-            return from_candid_GenerateResult_n8(this._uploadFile, this._downloadFile, result);
+            return from_candid_GenerateResult_n10(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCallerUserRole(): Promise<UserRole> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserRole();
+                return from_candid_UserRole_n12(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserRole();
+            return from_candid_UserRole_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async isCallerAdmin(): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isCallerAdmin();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isCallerAdmin();
+            return result;
         }
     }
     async listGallery(): Promise<Array<GalleryEntryPublic>> {
         if (this.processError) {
             try {
                 const result = await this.actor.listGallery();
-                return from_candid_vec_n13(this._uploadFile, this._downloadFile, result);
+                return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.listGallery();
-            return from_candid_vec_n13(this._uploadFile, this._downloadFile, result);
+            return result;
+        }
+    }
+    async storePhoto(arg0: string, arg1: string): Promise<GenerateResult> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.storePhoto(arg0, arg1);
+                return from_candid_GenerateResult_n10(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.storePhoto(arg0, arg1);
+            return from_candid_GenerateResult_n10(this._uploadFile, this._downloadFile, result);
         }
     }
     async transform(arg0: TransformationInput): Promise<TransformationOutput> {
@@ -288,14 +383,11 @@ export class Backend implements backendInterface {
         }
     }
 }
-async function from_candid_ExternalBlob_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
-    return await _downloadFile(value);
+function from_candid_GenerateResult_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _GenerateResult): GenerateResult {
+    return from_candid_variant_n11(_uploadFile, _downloadFile, value);
 }
-async function from_candid_GalleryEntryPublic_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _GalleryEntryPublic): Promise<GalleryEntryPublic> {
-    return await from_candid_record_n11(_uploadFile, _downloadFile, value);
-}
-async function from_candid_GenerateResult_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _GenerateResult): Promise<GenerateResult> {
-    return await from_candid_variant_n9(_uploadFile, _downloadFile, value);
+function from_candid_UserRole_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n13(_uploadFile, _downloadFile, value);
 }
 function from_candid__ImmutableObjectStorageRefillResult_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: __ImmutableObjectStorageRefillResult): _ImmutableObjectStorageRefillResult {
     return from_candid_record_n5(_uploadFile, _downloadFile, value);
@@ -305,24 +397,6 @@ function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Ar
 }
 function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
     return value.length === 0 ? null : value[0];
-}
-async function from_candid_record_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    id: _ImageId;
-    createdAt: bigint;
-    prompt: string;
-    image: _ExternalBlob;
-}): Promise<{
-    id: ImageId;
-    createdAt: bigint;
-    prompt: string;
-    image: ExternalBlob;
-}> {
-    return {
-        id: value.id,
-        createdAt: value.createdAt,
-        prompt: value.prompt,
-        image: await from_candid_ExternalBlob_n12(_uploadFile, _downloadFile, value.image)
-    };
 }
 function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     success: [] | [boolean];
@@ -336,27 +410,36 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
         topped_up_amount: record_opt_to_undefined(from_candid_opt_n7(_uploadFile, _downloadFile, value.topped_up_amount))
     };
 }
-async function from_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     ok: _GalleryEntryPublic;
 } | {
     err: string;
-}): Promise<{
+}): {
     __kind__: "ok";
     ok: GalleryEntryPublic;
 } | {
     __kind__: "err";
     err: string;
-}> {
+} {
     return "ok" in value ? {
         __kind__: "ok",
-        ok: await from_candid_GalleryEntryPublic_n10(_uploadFile, _downloadFile, value.ok)
+        ok: value.ok
     } : "err" in value ? {
         __kind__: "err",
         err: value.err
     } : value;
 }
-async function from_candid_vec_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_GalleryEntryPublic>): Promise<Array<GalleryEntryPublic>> {
-    return await Promise.all(value.map(async (x)=>await from_candid_GalleryEntryPublic_n10(_uploadFile, _downloadFile, x)));
+function from_candid_variant_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+}): UserRole {
+    return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
+}
+function to_candid_UserRole_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
+    return to_candid_variant_n9(_uploadFile, _downloadFile, value);
 }
 function to_candid__ImmutableObjectStorageRefillInformation_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ImmutableObjectStorageRefillInformation): __ImmutableObjectStorageRefillInformation {
     return to_candid_record_n3(_uploadFile, _downloadFile, value);
@@ -372,6 +455,21 @@ function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
     return {
         proposed_top_up_amount: value.proposed_top_up_amount ? candid_some(value.proposed_top_up_amount) : candid_none()
     };
+}
+function to_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+} {
+    return value == UserRole.admin ? {
+        admin: null
+    } : value == UserRole.user ? {
+        user: null
+    } : value == UserRole.guest ? {
+        guest: null
+    } : value;
 }
 export interface CreateActorOptions {
     agent?: Agent;

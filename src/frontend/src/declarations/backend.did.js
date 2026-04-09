@@ -19,13 +19,17 @@ export const _ImmutableObjectStorageRefillResult = IDL.Record({
   'success' : IDL.Opt(IDL.Bool),
   'topped_up_amount' : IDL.Opt(IDL.Nat),
 });
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
 export const ImageId = IDL.Nat;
-export const ExternalBlob = IDL.Vec(IDL.Nat8);
 export const GalleryEntryPublic = IDL.Record({
   'id' : ImageId,
   'createdAt' : IDL.Int,
   'prompt' : IDL.Text,
-  'image' : ExternalBlob,
+  'image' : IDL.Text,
 });
 export const GenerateResult = IDL.Variant({
   'ok' : GalleryEntryPublic,
@@ -77,9 +81,15 @@ export const idlService = IDL.Service({
       [],
     ),
   '_immutableObjectStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+  '_initializeAccessControl' : IDL.Func([], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'deleteGalleryEntry' : IDL.Func([ImageId], [IDL.Bool], []),
+  'generateComicImage' : IDL.Func([IDL.Text], [GenerateResult], []),
   'generateImage' : IDL.Func([IDL.Text], [GenerateResult], []),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'listGallery' : IDL.Func([], [IDL.Vec(GalleryEntryPublic)], ['query']),
+  'storePhoto' : IDL.Func([IDL.Text, IDL.Text], [GenerateResult], []),
   'transform' : IDL.Func(
       [TransformationInput],
       [TransformationOutput],
@@ -101,13 +111,17 @@ export const idlFactory = ({ IDL }) => {
     'success' : IDL.Opt(IDL.Bool),
     'topped_up_amount' : IDL.Opt(IDL.Nat),
   });
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
   const ImageId = IDL.Nat;
-  const ExternalBlob = IDL.Vec(IDL.Nat8);
   const GalleryEntryPublic = IDL.Record({
     'id' : ImageId,
     'createdAt' : IDL.Int,
     'prompt' : IDL.Text,
-    'image' : ExternalBlob,
+    'image' : IDL.Text,
   });
   const GenerateResult = IDL.Variant({
     'ok' : GalleryEntryPublic,
@@ -156,9 +170,15 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     '_immutableObjectStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+    '_initializeAccessControl' : IDL.Func([], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'deleteGalleryEntry' : IDL.Func([ImageId], [IDL.Bool], []),
+    'generateComicImage' : IDL.Func([IDL.Text], [GenerateResult], []),
     'generateImage' : IDL.Func([IDL.Text], [GenerateResult], []),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'listGallery' : IDL.Func([], [IDL.Vec(GalleryEntryPublic)], ['query']),
+    'storePhoto' : IDL.Func([IDL.Text, IDL.Text], [GenerateResult], []),
     'transform' : IDL.Func(
         [TransformationInput],
         [TransformationOutput],

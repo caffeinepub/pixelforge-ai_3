@@ -1,12 +1,11 @@
 // Version: 1.0.0
 type Data__791452850<K, V> =
   {var count : Nat__490723111; kvs : [var ?(K, V)]};
-type ExternalBlob__246066408 = Blob;
 type GalleryEntry__171832452 =
   {
     createdAt : Int;
     id : ImageId__494644729;
-    image : ExternalBlob__246066408;
+    image : Text;
     owner : UserId__234076213;
     prompt : Text
   };
@@ -30,7 +29,13 @@ type Nat__920180692 = Nat;
 type Node__46230540<K, V> =
   {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
 type UserId__234076213 = Principal;
+type UserRole__1054455867 = {#admin; #guest; #user};
 actor {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__605269027<Principal, UserRole__1054455867>
+    };
   stable imageState :
     {
       gallery :

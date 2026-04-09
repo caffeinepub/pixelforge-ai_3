@@ -22,7 +22,7 @@ export function GalleryCard({
   const [hovered, setHovered] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const imageUrl = entry.image.getDirectURL();
+  const imageUrl = entry.image;
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();

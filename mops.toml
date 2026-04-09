@@ -33,3 +33,4 @@ args = [
 core = "2.2.0"
 caffeineai-object-storage = "0.1.1"
 caffeineai-http-outcalls = "0.1.0"
+caffeineai-authorization = "0.1.0"

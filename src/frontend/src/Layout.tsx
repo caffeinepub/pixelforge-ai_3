@@ -16,12 +16,15 @@ const navItems = [
 ];
 
 export function Layout({ children, requireAuth = false }: LayoutProps) {
-  const { isAuthenticated, logout, login, isLoading } = useAuth();
+  const { isAuthenticated, logout, login, isLoading, isInitializing } =
+    useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
 
-  if (requireAuth && !isAuthenticated) {
+  // During initialization, don't gate content — the page components
+  // handle their own auth-redirect logic after init completes.
+  if (requireAuth && !isAuthenticated && !isInitializing) {
     return null;
   }
 

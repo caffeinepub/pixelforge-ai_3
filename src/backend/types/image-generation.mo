@@ -1,5 +1,3 @@
-import Storage "mo:caffeineai-object-storage/Storage";
-
 module {
   public type ImageId = Nat;
   public type UserId = Principal;
@@ -9,7 +7,7 @@ module {
     id : ImageId;
     owner : UserId;
     prompt : Text;
-    image : Storage.ExternalBlob;
+    image : Text;
     createdAt : Int;
   };
 
@@ -17,7 +15,7 @@ module {
   public type GalleryEntryPublic = {
     id : ImageId;
     prompt : Text;
-    image : Storage.ExternalBlob;
+    image : Text;
     createdAt : Int;
   };
 

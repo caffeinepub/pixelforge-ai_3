@@ -22,6 +22,12 @@ type _ImmutableObjectStorageCreateCertificateResult =
    blob_hash: text;
    method: text;
  };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
 type TransformationOutput = 
  record {
    body: blob;
@@ -43,10 +49,9 @@ type GalleryEntryPublic =
  record {
    createdAt: int;
    id: ImageId;
-   image: ExternalBlob;
+   image: text;
    prompt: text;
  };
-type ExternalBlob = blob;
 service : {
   _immutableObjectStorageBlobsAreLive: (hashes: vec blob) -> (vec bool) query;
   _immutableObjectStorageBlobsToDelete: () -> (vec blob) query;
@@ -57,8 +62,14 @@ service : {
    opt _ImmutableObjectStorageRefillInformation) ->
    (_ImmutableObjectStorageRefillResult);
   _immutableObjectStorageUpdateGatewayPrincipals: () -> ();
+  _initializeAccessControl: () -> ();
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
   deleteGalleryEntry: (id: ImageId) -> (bool);
+  generateComicImage: (prompt: text) -> (GenerateResult);
   generateImage: (prompt: text) -> (GenerateResult);
+  getCallerUserRole: () -> (UserRole) query;
+  isCallerAdmin: () -> (bool) query;
   listGallery: () -> (vec GalleryEntryPublic) query;
+  storePhoto: (url: text, prompt: text) -> (GenerateResult);
   transform: (input: TransformationInput) -> (TransformationOutput) query;
 }

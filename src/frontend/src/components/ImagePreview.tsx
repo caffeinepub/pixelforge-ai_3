@@ -9,7 +9,7 @@ interface ImagePreviewProps {
 }
 
 export function ImagePreview({ entry, onGenerateAnother }: ImagePreviewProps) {
-  const imageUrl = entry.image.getDirectURL();
+  const imageUrl = entry.image;
 
   return (
     <div

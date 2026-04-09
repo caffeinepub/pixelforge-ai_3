@@ -26,7 +26,7 @@ export function Lightbox({
   onDelete,
   isDeleting,
 }: LightboxProps) {
-  const imageUrl = entry.image.getDirectURL();
+  const imageUrl = entry.image;
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -42,12 +42,12 @@ export function Lightbox({
 
   const handleDownload = async () => {
     try {
-      const bytes = await entry.image.getBytes();
-      const blob = new Blob([bytes], { type: "image/png" });
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `neuro-gen-${entry.id}.png`;
+      a.download = `pixelforge-${entry.id}.png`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {

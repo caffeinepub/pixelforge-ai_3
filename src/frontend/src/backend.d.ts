@@ -7,13 +7,6 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export class ExternalBlob {
-    getBytes(): Promise<Uint8Array<ArrayBuffer>>;
-    getDirectURL(): string;
-    static fromURL(url: string): ExternalBlob;
-    static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
-    withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
-}
 export type ImageId = bigint;
 export interface TransformationOutput {
     status: bigint;
@@ -35,7 +28,7 @@ export interface GalleryEntryPublic {
     id: ImageId;
     createdAt: bigint;
     prompt: string;
-    image: ExternalBlob;
+    image: string;
 }
 export interface http_header {
     value: string;
@@ -46,9 +39,19 @@ export interface http_request_result {
     body: Uint8Array;
     headers: Array<http_header>;
 }
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteGalleryEntry(id: ImageId): Promise<boolean>;
+    generateComicImage(prompt: string): Promise<GenerateResult>;
     generateImage(prompt: string): Promise<GenerateResult>;
+    getCallerUserRole(): Promise<UserRole>;
+    isCallerAdmin(): Promise<boolean>;
     listGallery(): Promise<Array<GalleryEntryPublic>>;
+    storePhoto(url: string, prompt: string): Promise<GenerateResult>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
 }

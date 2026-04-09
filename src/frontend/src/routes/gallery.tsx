@@ -9,18 +9,19 @@ import { useDeleteGalleryEntry, useGallery } from "../hooks/useQueries";
 import { Route as RootRoute } from "./__root";
 
 function GalleryPage() {
-  const { isAuthenticated, isLoading, login } = useAuth();
+  const { isAuthenticated, isLoading, isInitializing, login } = useAuth();
   const navigate = useNavigate();
   const { data: entries = [], isLoading: galleryLoading } = useGallery();
   const deleteMutation = useDeleteGalleryEntry();
 
   useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
+    // Wait for initialization to complete before redirecting
+    if (!isInitializing && !isAuthenticated && !isLoading) {
       navigate({ to: "/" });
     }
-  }, [isAuthenticated, isLoading, navigate]);
+  }, [isAuthenticated, isLoading, isInitializing, navigate]);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !isInitializing) {
     return (
       <div
         className="flex-1 flex flex-col items-center justify-center min-h-[60vh] gap-6 p-8"

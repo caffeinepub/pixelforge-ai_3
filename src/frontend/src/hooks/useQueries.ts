@@ -8,6 +8,8 @@ interface GalleryActor {
   listGallery: () => Promise<GalleryEntryPublic[]>;
   deleteGalleryEntry: (id: ImageId) => Promise<boolean>;
   generateImage: (prompt: string) => Promise<GenerateResult>;
+  generateComicImage: (prompt: string) => Promise<GenerateResult>;
+  storePhoto: (url: string, prompt: string) => Promise<GenerateResult>;
 }
 
 export function useGallery() {
@@ -43,6 +45,51 @@ export function useGenerateImage() {
     mutationFn: async (prompt: string) => {
       if (!actor) throw new Error("Actor not ready");
       const result = await (actor as unknown as GalleryActor).generateImage(
+        prompt,
+      );
+      if (result.__kind__ === "err") {
+        throw new Error(result.err);
+      }
+      return result.ok;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["gallery"] });
+    },
+  });
+}
+
+export function useGenerateComicImage() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+  return useMutation<GalleryEntryPublic, Error, string>({
+    mutationFn: async (prompt: string) => {
+      if (!actor) throw new Error("Actor not ready");
+      const result = await (
+        actor as unknown as GalleryActor
+      ).generateComicImage(prompt);
+      if (result.__kind__ === "err") {
+        throw new Error(result.err);
+      }
+      return result.ok;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["gallery"] });
+    },
+  });
+}
+
+export function useStorePhoto() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+  return useMutation<
+    GalleryEntryPublic,
+    Error,
+    { url: string; prompt: string }
+  >({
+    mutationFn: async ({ url, prompt }) => {
+      if (!actor) throw new Error("Actor not ready");
+      const result = await (actor as unknown as GalleryActor).storePhoto(
+        url,
         prompt,
       );
       if (result.__kind__ === "err") {

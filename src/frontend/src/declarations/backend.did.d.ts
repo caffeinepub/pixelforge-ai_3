@@ -10,12 +10,11 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export type ExternalBlob = Uint8Array;
 export interface GalleryEntryPublic {
   'id' : ImageId,
   'createdAt' : bigint,
   'prompt' : string,
-  'image' : ExternalBlob,
+  'image' : string,
 }
 export type GenerateResult = { 'ok' : GalleryEntryPublic } |
   { 'err' : string };
@@ -29,6 +28,9 @@ export interface TransformationOutput {
   'body' : Uint8Array,
   'headers' : Array<http_header>,
 }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _ImmutableObjectStorageCreateCertificateResult {
   'method' : string,
   'blob_hash' : string,
@@ -65,9 +67,15 @@ export interface _SERVICE {
     _ImmutableObjectStorageRefillResult
   >,
   '_immutableObjectStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
+  '_initializeAccessControl' : ActorMethod<[], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'deleteGalleryEntry' : ActorMethod<[ImageId], boolean>,
+  'generateComicImage' : ActorMethod<[string], GenerateResult>,
   'generateImage' : ActorMethod<[string], GenerateResult>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
   'listGallery' : ActorMethod<[], Array<GalleryEntryPublic>>,
+  'storePhoto' : ActorMethod<[string, string], GenerateResult>,
   'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
 }
 export declare const idlService: IDL.ServiceClass;
