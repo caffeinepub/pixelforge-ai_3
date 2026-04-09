@@ -1,0 +1,19 @@
+{
+  "overview": "An AI-powered photo generation app where you describe what you want to see and the app creates it. Log in, type a description, generate unlimited photos, and browse your full creation history in a personal gallery.",
+  "features": [
+    "Text-to-image generation using AI",
+    "Personal gallery with full history",
+    "Login with Internet Identity",
+    "View, browse, and delete generated photos",
+    "Lightbox detail view with original prompt"
+  ],
+  "category": "productivity",
+  "tags": [
+    "ai",
+    "image-generation",
+    "gallery",
+    "photo",
+    "creative"
+  ],
+  "last_updated": "2026-04-09T09:20:23.143Z"
+}

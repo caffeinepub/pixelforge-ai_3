@@ -1,0 +1,41 @@
+// Version: 1.0.0
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type ExternalBlob__246066408 = Blob;
+type GalleryEntry__171832452 =
+  {
+    createdAt : Int;
+    id : ImageId__494644729;
+    image : ExternalBlob__246066408;
+    owner : UserId__234076213;
+    prompt : Text
+  };
+type ImageId__494644729 = Nat;
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type List__415060402<T> = List__790383201<T>;
+type List__790383201<T> =
+  {
+    var blockIndex : Nat__490723111;
+    var blocks : [var [var ?T]];
+    var elementIndex : Nat__490723111
+  };
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type UserId__234076213 = Principal;
+actor {
+  stable imageState :
+    {
+      gallery :
+        Map__605269027<UserId__234076213,
+                        List__415060402<GalleryEntry__171832452>>;
+      var nextId : Nat
+    }
+};
